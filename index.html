@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quindío/chan - Terminal Edition v1.0 BETA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #33ff33;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.6;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            border: 2px solid #33ff33;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px #33ff33;
+        }
+
+        .neofetch {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ascii-art {
+            color: #0066ff;
+            font-size: 12px;
+            white-space: pre;
+        }
+
+        .system-info {
+            color: #33ff33;
+        }
+
+        .info-line {
+            margin: 5px 0;
+        }
+
+        .label {
+            color: #0066ff;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+            color: #33ff33;
+            text-shadow: 0 0 10px #33ff33;
+            margin: 20px 0;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .boards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .board {
+            border: 1px solid #33ff33;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #0f0f0f;
+        }
+
+        .board:hover {
+            background: #1a1a1a;
+            box-shadow: 0 0 15px #33ff33;
+            transform: translateX(5px);
+        }
+
+        .board-title {
+            color: #33ff33;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .board-desc {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .board-stats {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+
+        .thread-view, .post-form {
+            border: 1px solid #33ff33;
+            padding: 20px;
+            margin: 20px 0;
+            background: #0f0f0f;
+        }
+
+        .thread {
+            border: 1px solid #555;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .thread:hover {
+            border-color: #33ff33;
+            background: #1a1a1a;
+        }
+
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #0066ff;
+        }
+
+        .thread-title {
+            color: #33ff33;
+            font-weight: bold;
+        }
+
+        .thread-content {
+            color: #ccc;
+            margin: 10px 0;
+        }
+
+        .reply {
+            border-left: 3px solid #555;
+            padding: 10px;
+            margin: 10px 0 10px 30px;
+            background: #0a0a0a;
+        }
+
+        .reply-header {
+            color: #0066ff;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .reply-content {
+            color: #aaa;
+        }
+
+        input, textarea {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #33ff33;
+            color: #33ff33;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 10px 0;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 10px #33ff33;
+        }
+
+        button {
+            background: #0a0a0a;
+            border: 2px solid #33ff33;
+            color: #33ff33;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #33ff33;
+            color: #0a0a0a;
+            box-shadow: 0 0 15px #33ff33;
+        }
+
+        .nav {
+            margin: 20px 0;
+        }
+
+        .nav button {
+            margin-right: 10px;
+        }
+
+        .meta {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .timestamp {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .quote {
+            color: #89a02c;
+            cursor: pointer;
+        }
+
+        .quote:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #ff3333;
+            border: 1px solid #ff3333;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .success {
+            color: #33ff33;
+            border: 1px solid #33ff33;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .footer {
+            text-align: center;
+            color: #555;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #333;
+        }
+
+        .command-prompt {
+            color: #33ff33;
+            margin: 10px 0;
+        }
+
+        .command-prompt::before {
+            content: "root@quindio-chan:~$ ";
+            color: #0066ff;
+        }
+
+        .institutions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .institution {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="neofetch">
+                <div class="ascii-art">         /',        
+        /'  /          
+      /'  /            
+    /'  /              
+  /'  /                
+ /  /'                 
+/  /'                  
+`/'                    </div>
+                <div class="system-info">
+                    <div class="info-line"><span class="label">OS:</span> Quindío/chan Terminal Edition</div>
+                    <div class="info-line"><span class="label">Host:</span> Universidad del Quindío Network</div>
+                    <div class="info-line"><span class="label">Kernel:</span> 1.0-BETA</div>
+                    <div class="info-line"><span class="label">Uptime:</span> <span id="uptime">0 mins</span></div>
+                    <div class="info-line"><span class="label">Shell:</span> quindio-sh 1.0</div>
+                    <div class="info-line"><span class="label">CPU:</span> Multi-core Academic Processor</div>
+                    <div class="info-line"><span class="label">GPU:</span> Neural Network Accelerator</div>
+                    <div class="info-line"><span class="label">Memory:</span> ∞ Knowledge Base</div>
+                </div>
+            </div>
+
+            <h1>╔═══════════════════════════════════╗<br>║ QUINDÍO/CHAN v1.0 BETA ║<br>╚═══════════════════════════════════╝</h1>
+            <div class="subtitle">[ Foro Técnico-Académico del Eje Cafetero ]</div>
+            
+            <div class="institutions">
+                <span class="institution">[CUE Alexander Von Humboldt]</span>
+                <span class="institution">[Universidad del Quindío]</span>
+                <span class="institution">[SENA]</span>
+                <span class="institution">[EAM]</span>
+            </div>
+
+            <div class="command-prompt">Bienvenido al sistema de foros académicos<span class="blink">_</span></div>
+        </div>
+
+        <!-- Main View -->
+        <div id="main-view">
+            <div class="boards-container" id="boards-container"></div>
+        </div>
+
+        <!-- Board View -->
+        <div id="board-view" class="hidden">
+            <div class="nav">
+                <button onclick="goHome()">← Volver al índice</button>
+                <button onclick="showNewThreadForm()">Crear nuevo thread</button>
+            </div>
+            
+            <div id="new-thread-form" class="post-form hidden">
+                <h3>Nuevo Thread</h3>
+                <input type="text" id="thread-subject" placeholder="Asunto" maxlength="100">
+                <input type="text" id="thread-author" placeholder="Nombre (opcional)" maxlength="50">
+                <textarea id="thread-content" placeholder="Contenido" rows="6"></textarea>
+                <button onclick="createThread()">Publicar Thread</button>
+                <button onclick="hideNewThreadForm()">Cancelar</button>
+            </div>
+
+            <div id="threads-container"></div>
+        </div>
+
+        <!-- Thread View -->
+        <div id="thread-view" class="hidden">
+            <div class="nav">
+                <button onclick="backToBoard()">← Volver al board</button>
+                <button onclick="showReplyForm()">Responder</button>
+            </div>
+
+            <div id="reply-form" class="post-form hidden">
+                <h3>Nueva Respuesta</h3>
+                <input type="text" id="reply-author" placeholder="Nombre (opcional)" maxlength="50">
+                <textarea id="reply-content" placeholder="Contenido" rows="4"></textarea>
+                <button onclick="createReply()">Publicar Respuesta</button>
+                <button onclick="hideReplyForm()">Cancelar</button>
+            </div>
+
+            <div id="thread-detail"></div>
+        </div>
+
+        <div class="footer">
+            <div>═══════════════════════════════════════════════</div>
+            <div style="margin: 15px 0;">
+                <div>Powered by localStorage | No backend required | 100% Open Source</div>
+                <div style="margin-top: 10px;">Linux • macOS • FreeBSD • AI • Computación Científica</div>
+            </div>
+            <div>Quindío/chan v1.0 BETA - 2025</div>
+            <div style="margin-top: 10px; color: #444; font-size: 0.8em;">
+                [Deploy en GitHub Pages] | [Hecho con ♥ para la comunidad tech del Quindío]
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Board configuration
+        const boards = [
+            { id: 'prog', name: '/prog/ - Programación', desc: 'C, C++, Python, Java, JavaScript, Rust, Go y más' },
+            { id: 'linux', name: '/linux/ - GNU/Linux', desc: 'Distribuciones, kernel, administración de sistemas' },
+            { id: 'soft', name: '/soft/ - Software', desc: 'Aplicaciones, herramientas, desarrollo de software' },
+            { id: 'cs', name: '/cs/ - Ciencias de la Computación', desc: 'Algoritmos, estructuras de datos, teoría' },
+            { id: 'unix', name: '/unix/ - Unix-like', desc: 'macOS, FreeBSD, OpenBSD, Solaris' },
+            { id: 'ia', name: '/ia/ - Inteligencia Artificial', desc: 'ML, DL, NLP, Computer Vision, LLMs' },
+            { id: 'net', name: '/net/ - Redes y Servidores', desc: 'Infraestructura, DevOps, SysAdmin, Cloud' },
+            { id: 'sec', name: '/sec/ - Seguridad', desc: 'Ciberseguridad, pentesting, criptografía' },
+            { id: 'math', name: '/math/ - Matemáticas', desc: 'Álgebra, cálculo, matemáticas discretas' },
+            { id: 'phys', name: '/phys/ - Física', desc: 'Mecánica, electromagnetismo, física moderna' },
+            { id: 'sci', name: '/sci/ - Ciencias', desc: 'Química, biología, ciencias naturales' },
+            { id: 'tic', name: '/tic/ - TIC', desc: 'Tecnologías de la información y comunicación' },
+            { id: 'ing', name: '/ing/ - Ingenierías', desc: 'Ingeniería de sistemas, electrónica, industrial' },
+            { id: 'acad', name: '/acad/ - Académico', desc: 'Vida universitaria, SENA, intercambio académico' },
+            { id: 'meta', name: '/meta/ - Meta', desc: 'Sobre este foro, sugerencias, bugs' }
+        ];
+
+        // State
+        let currentBoard = null;
+        let currentThread = null;
+        const startTime = Date.now();
+
+        // Initialize
+        function init() {
+            loadBoards();
+            updateUptime();
+            setInterval(updateUptime, 60000);
+        }
+
+        function updateUptime() {
+            const mins = Math.floor((Date.now() - startTime) / 60000);
+            document.getElementById('uptime').textContent = `${mins} mins`;
+        }
+
+        // Load boards
+        function loadBoards() {
+            const container = document.getElementById('boards-container');
+            container.innerHTML = '';
+            
+            boards.forEach(board => {
+                const threads = getThreads(board.id);
+                const boardEl = document.createElement('div');
+                boardEl.className = 'board';
+                boardEl.onclick = () => openBoard(board.id);
+                
+                boardEl.innerHTML = `
+                    <div class="board-title">${board.name}</div>
+                    <div class="board-desc">${board.desc}</div>
+                    <div class="board-stats">Threads: ${threads.length} | Replies: ${getTotalReplies(threads)}</div>
+                `;
+                
+                container.appendChild(boardEl);
+            });
+        }
+
+        function getTotalReplies(threads) {
+            return threads.reduce((sum, thread) => sum + (thread.replies ? thread.replies.length : 0), 0);
+        }
+
+        // Board view
+        function openBoard(boardId) {
+            currentBoard = boardId;
+            const board = boards.find(b => b.id === boardId);
+            
+            document.getElementById('main-view').classList.add('hidden');
+            document.getElementById('board-view').classList.remove('hidden');
+            
+            loadThreads();
+        }
+
+        function goHome() {
+            document.getElementById('board-view').classList.add('hidden');
+            document.getElementById('thread-view').classList.add('hidden');
+            document.getElementById('main-view').classList.remove('hidden');
+            currentBoard = null;
+            currentThread = null;
+        }
+
+        function loadThreads() {
+            const threads = getThreads(currentBoard);
+            const container = document.getElementById('threads-container');
+            const board = boards.find(b => b.id === currentBoard);
+            
+            container.innerHTML = `<h2>${board.name}</h2>`;
+            
+            if (threads.length === 0) {
+                container.innerHTML += `<div class="meta">No hay threads aún. ¡Sé el primero en crear uno!</div>`;
+                return;
+            }
+            
+            threads.forEach(thread => {
+                const threadEl = document.createElement('div');
+                threadEl.className = 'thread';
+                threadEl.onclick = () => openThread(thread.id);
+                
+                const replyCount = thread.replies ? thread.replies.length : 0;
+                
+                threadEl.innerHTML = `
+                    <div class="thread-header">
+                        <span class="thread-title">${escapeHtml(thread.subject)}</span>
+                        <span class="meta">por ${escapeHtml(thread.author || 'Anónimo')} | ${replyCount} respuestas</span>
+                    </div>
+                    <div class="thread-content">${formatContent(thread.content)}</div>
+                    <div class="timestamp">${formatDate(thread.timestamp)}</div>
+                `;
+                
+                container.appendChild(threadEl);
+            });
+        }
+
+        // Thread view
+        function openThread(threadId) {
+            currentThread = threadId;
+            const threads = getThreads(currentBoard);
+            const thread = threads.find(t => t.id === threadId);
+            
+            document.getElementById('board-view').classList.add('hidden');
+            document.getElementById('thread-view').classList.remove('hidden');
+            
+            displayThread(thread);
+        }
+
+        function backToBoard() {
+            document.getElementById('thread-view').classList.add('hidden');
+            document.getElementById('board-view').classList.remove('hidden');
+            currentThread = null;
+            loadThreads();
+        }
+
+        function displayThread(thread) {
+            const container = document.getElementById('thread-detail');
+            
+            let html = `
+                <div class="thread-view">
+                    <div class="thread-header">
+                        <span class="thread-title">${escapeHtml(thread.subject)}</span>
+                        <span class="meta">por ${escapeHtml(thread.author || 'Anónimo')}</span>
+                    </div>
+                    <div class="thread-content">${formatContent(thread.content)}</div>
+                    <div class="timestamp">No. ${thread.id} | ${formatDate(thread.timestamp)}</div>
+                </div>
+            `;
+            
+            if (thread.replies && thread.replies.length > 0) {
+                thread.replies.forEach(reply => {
+                    html += `
+                        <div class="reply">
+                            <div class="reply-header">
+                                ${escapeHtml(reply.author || 'Anónimo')} | No. ${reply.id}
+                                <span class="timestamp">${formatDate(reply.timestamp)}</span>
+                            </div>
+                            <div class="reply-content">${formatContent(reply.content)}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Forms
+        function showNewThreadForm() {
+            document.getElementById('new-thread-form').classList.remove('hidden');
+        }
+
+        function hideNewThreadForm() {
+            document.getElementById('new-thread-form').classList.add('hidden');
+            clearThreadForm();
+        }
+
+        function showReplyForm() {
+            document.getElementById('reply-form').classList.remove('hidden');
+        }
+
+        function hideReplyForm() {
+            document.getElementById('reply-form').classList.add('hidden');
+            clearReplyForm();
+        }
+
+        function createThread() {
+            const subject = document.getElementById('thread-subject').value.trim();
+            const author = document.getElementById('thread-author').value.trim();
+            const content = document.getElementById('thread-content').value.trim();
+            
+            if (!subject || !content) {
+                alert('Por favor completa el asunto y el contenido');
+                return;
+            }
+            
+            const threads = getThreads(currentBoard);
+            const newThread = {
+                id: Date.now(),
+                subject: subject,
+                author: author || 'Anónimo',
+                content: content,
+                timestamp: Date.now(),
+                replies: []
+            };
+            
+            threads.unshift(newThread);
+            saveThreads(currentBoard, threads);
+            
+            hideNewThreadForm();
+            loadThreads();
+            
+            showSuccess('Thread creado exitosamente!');
+        }
+
+        function createReply() {
+            const author = document.getElementById('reply-author').value.trim();
+            const content = document.getElementById('reply-content').value.trim();
+            
+            if (!content) {
+                alert('Por favor escribe un contenido');
+                return;
+            }
+            
+            const threads = getThreads(currentBoard);
+            const thread = threads.find(t => t.id === currentThread);
+            
+            if (!thread) return;
+            
+            if (!thread.replies) thread.replies = [];
+            
+            const newReply = {
+                id: Date.now(),
+                author: author || 'Anónimo',
+                content: content,
+                timestamp: Date.now()
+            };
+            
+            thread.replies.push(newReply);
+            saveThreads(currentBoard, threads);
+            
+            hideReplyForm();
+            displayThread(thread);
+            
+            showSuccess('Respuesta publicada!');
+        }
+
+        function clearThreadForm() {
+            document.getElementById('thread-subject').value = '';
+            document.getElementById('thread-author').value = '';
+            document.getElementById('thread-content').value = '';
+        }
+
+        function clearReplyForm() {
+            document.getElementById('reply-author').value = '';
+            document.getElementById('reply-content').value = '';
+        }
+
+        // Storage
+        function getThreads(boardId) {
+            const data = localStorage.getItem(`board_${boardId}`);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveThreads(boardId, threads) {
+            localStorage.setItem(`board_${boardId}`, JSON.stringify(threads));
+        }
+
+        // Utilities
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatContent(content) {
+            let formatted = escapeHtml(content);
+            
+            // Greentext
+            formatted = formatted.replace(/^&gt;(.+)$/gm, '<span class="quote">&gt;$1</span>');
+            
+            // Line breaks
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            return formatted;
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const mins = String(date.getMinutes()).padStart(2, '0');
+            
+            return `${day}/${month}/${year} ${hours}:${mins}`;
+        }
+
+        function showSuccess(message) {
+            const div = document.createElement('div');
+            div.className = 'success';
+            div.textContent = message;
+            document.querySelector('.container').insertBefore(div, document.querySelector('.container').firstChild);
+            
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
